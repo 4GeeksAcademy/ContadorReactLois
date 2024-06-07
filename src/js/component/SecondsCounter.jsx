@@ -18,7 +18,7 @@ const SecondsCounter = () => {
 
 //ESTADOS
   const [seconds, setSeconds] = useState(0); //Contador (segundos y el reinicio) a cero con useState. Almacena el número de segundos que queremos mostrar.
-  const [isCounting, setIsCounting] = useState(true); //isCounting: Indica si el contador está en marcha.
+  const [isCounting, setIsCounting] = useState(false); // Estado para indicar si el contador está en marcha. Lo que significa que el contador no comenzará automáticamente y tendré que darle a Start
   const [initialValue, setInitialValue] = useState(0); //initialValue: El valor inicial desde donde el contador comenzará.
   const [alertValue, setAlertValue] = useState(null); //alertValue: El valor en el cual queremos que se muestre una alerta.
 
@@ -30,9 +30,10 @@ const SecondsCounter = () => {
     //Configuración del temporizador (contador)
     const intervalId = setInterval(() => { //SetInterval: ejecutar una función repetidamente después de un intervalo de tiempo especificado. Los argumentos que toma la función setInterval son  setSeconds y 1000 milisegundos.
       setSeconds(prevSeconds => {    //actualizando el estado "seconds". Usamos la función "prevSeconds" para obtener el valor actual de "seconds" y luego devolver el "nuevo valor" de "seconds".
-        if (prevSeconds == 1) {
-          Console.log("Tiempo alcanzado");
-         // Si initialValue tiene un valor (es decir, no es cero), entonces estamos en modo de cuenta regresiva. En este caso, cuando el contador llega a 1, mostramos una alerta.
+        if (prevSeconds === alertValue) {
+          setIsCounting (false) //detener el contador
+          console.log ("has llegado a tu destino");
+          return prevSeconds;// aqui no actualizo el estado de los segundos, hasta que le de a reset
         }
         
         return initialValue ? Math.max(prevSeconds - 1, 0) : prevSeconds + 1; //0 es el argumento de Math.max y representa el valor mínimo. Se utiliza para que no cuente numeros negativos
@@ -44,12 +45,14 @@ const SecondsCounter = () => {
 
     // Cuando el componente SecondCounter, no se ejecute (es decir, cuando ya no se muestre en la pantalla) o cuando las "dependencias" "isCounting o initialValue" cambien. clearInterval(intervalId) detiene el temporizador que configurado con setInterval.
     return () => clearInterval(intervalId);
-  }, [isCounting, initialValue]);
+  }, [isCounting, initialValue, alertValue]); //// Agregamos alertValue a las dependencias para que el efecto se ejecute cuando este valor cambie.
+
+  
 
 // Funciones para manejar el inicio, parada, reinicio y reanudación del contador
 
 const handleStart = () => {
-  setSeconds(initialValue); //handleStart: Inicia el contador desde initialValue
+  setSeconds(initialValue); //handleStart: // Iniciar el contador desde el valor inicial.
   setIsCounting(true);
 };
 
@@ -60,7 +63,8 @@ const handleReset = () => {
   setIsCounting(false);
 };
 
-const handleResume = () => setIsCounting(true); //handleStop: Detiene el contador.
+const handleResume = () => setIsCounting(true); // Reanudar el contador.
+
 
 //RENDERIZADO.
   
